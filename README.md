@@ -3,7 +3,7 @@ Evaluate signed-distance-fields with great efficiency using the power of the Uni
 
 Here is an example of what is possible using the power of NativeSDF.  This is a real-time meshing example which samples the distance field tens of thousands of times every frame, and is still able to run at 60fps.  
 
-<img src="https://imgur.com/XXF0cKA.gif">
+<img src="https://i.imgur.com/8EQN36G.gif">
 
 Note that meshing is not really the point of this library, and is just included so you can visualize the signed distance field.
 
