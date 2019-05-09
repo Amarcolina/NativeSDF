@@ -2,7 +2,9 @@
 Evaluate signed-distance-fields with great efficiency using the power of the Unity Job System and the Burst Compiler.  This library allows you to construct signed distance fields by assembling a tree of signed distance operations.  Once assembled, this tree can be compiled into a NativeSDF representation, which can be evaluated extremely efficiently and is compatible with the Unity Job System and the Unity Burst Compiler.
 
 Here is an example of what is possible using the power of NativeSDF.  This is a real-time meshing example which samples the distance field tens of thousands of times every frame, and is still able to run at 60fps.  
-|demo gif|
+
+<img src="https://i.imgur.com/XXF0cKA.gif">
+
 Note that meshing is not really the point of this library, and is just included so you can visualize the signed distance field.
 
 # Quick Start
