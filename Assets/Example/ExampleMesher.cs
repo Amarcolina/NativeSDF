@@ -9,12 +9,16 @@ using UnityEngine;
 using SDF;
 using SDF.Hierarchy;
 
+/// <summary>
+/// Not a very good mesher, but useful for visualizing signed distance field!
+/// </summary>
 public class ExampleMesher : MonoBehaviour {
-  
+
   [Range(4, 64)]
   public int Resolution = 16;
   public float GridSize = 0.1f;
   public int Chunks = 2;
+  public bool UseVoxelStyle;
   public Material previewMat;
 
   private float _resultDist;
@@ -58,7 +62,8 @@ public class ExampleMesher : MonoBehaviour {
             Vertices = pairArrays[pairIndex],
             Counts = counts,
             CountIndex = pairIndex,
-            CellOffset = new int3(dx * (Resolution - 1), 0, dz * (Resolution - 1))
+            CellOffset = new int3(dx * (Resolution - 1), 0, dz * (Resolution - 1)),
+            UseVoxelStyle = UseVoxelStyle
           }.Schedule();
 
           pairIndex++;
@@ -155,7 +160,7 @@ public class ExampleMesher : MonoBehaviour {
     handles.Dispose();
   }
 
-  private void OnDrawGizmos() {
+  private void OnDrawGizmosSelected() {
     Gizmos.color = Color.gray;
 
     for (int dx = 0; dx < Chunks; dx++) {
@@ -180,6 +185,8 @@ public class ExampleMesher : MonoBehaviour {
     [NativeDisableContainerSafetyRestriction]
     public NativeArray<int> Counts;
     public int CountIndex;
+
+    public bool UseVoxelStyle;
 
     public unsafe void Execute() {
       float* slice0 = allocSlice();
@@ -226,7 +233,13 @@ public class ExampleMesher : MonoBehaviour {
             }
 
             int count = Counts[CountIndex];
-            Vertices[count] = new KeyValuePair<int3, float3>(CellOffset + new int3(x, y, z), (vertCenter / totalSamples) * GridSize + GridCorner);
+
+            if (UseVoxelStyle) {
+              Vertices[count] = new KeyValuePair<int3, float3>(CellOffset + new int3(x, y, z), new float3(x + 0.5f, y + 0.5f, z + 0.5f) * GridSize + GridCorner);
+            } else {
+              Vertices[count] = new KeyValuePair<int3, float3>(CellOffset + new int3(x, y, z), (vertCenter / totalSamples) * GridSize + GridCorner);
+            }
+
             Counts[CountIndex] = count + 1;
           }
         }

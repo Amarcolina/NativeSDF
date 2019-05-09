@@ -1975,8 +1975,7 @@ MonoBehaviour:
   Resolution: 16
   GridSize: 0.06666667
   Chunks: 4
-  K: 0.5
-  previewCube: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  UseVoxelStyle: 0
   previewMat: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
 --- !u!4 &684020682
 Transform:
