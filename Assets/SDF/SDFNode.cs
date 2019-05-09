@@ -155,7 +155,7 @@ namespace SDF {
     }
 
     public interface IInstructionVisitor {
-      void Visit<InstructionType>(ref InstructionType instruction) where InstructionType : struct, IInstruction;
+      void Visit<InstructionType>(InstructionType instruction) where InstructionType : struct, IInstruction;
     }
     #endregion
 
@@ -203,11 +203,7 @@ namespace SDF {
     private struct InstructionCountVisitor : IInstructionVisitor {
       public int InstructionCount;
 
-      public void Visit<InstructionType>(ref InstructionType instruction) where InstructionType : struct, IInstruction {
-        if (typeof(InstructionType) == typeof(Nop)) {
-          return;
-        }
-
+      public void Visit<InstructionType>(InstructionType instruction) where InstructionType : struct, IInstruction {
         InstructionCount++;
       }
     }
@@ -215,11 +211,7 @@ namespace SDF {
     private struct BufferSizeVisitor : IInstructionVisitor {
       public int BufferSize;
 
-      public void Visit<InstructionType>(ref InstructionType instruction) where InstructionType : struct, IInstruction {
-        if (typeof(InstructionType) == typeof(Nop)) {
-          return;
-        }
-
+      public void Visit<InstructionType>(InstructionType instruction) where InstructionType : struct, IInstruction {
         BufferSize += sizeof(uint);
         BufferSize += UnsafeUtility.SizeOf<InstructionType>();
       }
@@ -229,11 +221,7 @@ namespace SDF {
       public int CurrStack;
       public int MaxStack;
 
-      public void Visit<InstructionType>(ref InstructionType instruction) where InstructionType : struct, IInstruction {
-        if (typeof(InstructionType) == typeof(Nop)) {
-          return;
-        }
-
+      public void Visit<InstructionType>(InstructionType instruction) where InstructionType : struct, IInstruction {
         CurrStack += instruction.StackOffset4x;
         MaxStack = Math.Max(MaxStack, CurrStack);
       }
@@ -243,11 +231,7 @@ namespace SDF {
       public IntPtr ptr;
       public int byteOffset;
 
-      public void Visit<InstructionType>(ref InstructionType instruction) where InstructionType : struct, IInstruction {
-        if (typeof(InstructionType) == typeof(Nop)) {
-          return;
-        }
-
+      public void Visit<InstructionType>(InstructionType instruction) where InstructionType : struct, IInstruction {
         byte opCode = Instruction.GetOpCode<InstructionType>();
 
         unsafe {
@@ -260,37 +244,5 @@ namespace SDF {
       }
     }
     #endregion
-  }
-
-  /// <summary>
-  /// A generic instance of SDFNode that can be used to build generic SDFNodes that have a pre-order
-  /// and post-order instruction.  This class is an advanced class, and should only be inherited from 
-  /// in order to create more advanced instructions.  For simpler types of operations look at inheriting
-  /// from SDFNodeShape, SDFNodeUnary, or SDFNodeBinary.
-  /// </summary>
-  public abstract class SDFNode<PreInstructionType, PostInstructionType> : SDFNode
-      where PreInstructionType : struct, IInstruction
-      where PostInstructionType : struct, IInstruction {
-
-    public PreInstructionType PreInstruction;
-    public PostInstructionType PostInstruction;
-
-    public SDFNode() {
-      PreInstruction = default;
-      PostInstruction = default;
-    }
-
-    public SDFNode(PreInstructionType preInstruction, PostInstructionType postInstruction) {
-      PreInstruction = preInstruction;
-      PostInstruction = postInstruction;
-    }
-
-    public override void VisitPreOrderInstructions<VisitorType>(ref VisitorType visitor) {
-      visitor.Visit(ref PreInstruction);
-    }
-
-    public override void VisitPostOrderInstructions<VisitorType>(ref VisitorType visitor) {
-      visitor.Visit(ref PostInstruction);
-    }
   }
 }

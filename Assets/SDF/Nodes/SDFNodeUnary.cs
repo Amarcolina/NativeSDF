@@ -23,13 +23,16 @@ namespace SDF {
   /// 
   /// For an example of how to implement the SDFNodeUnary class, you can take a look at Inverse.cs
   /// </summary>
-  public class SDFNodeUnary<OpType> : SDFNode<Nop, SDFNodeUnary<OpType>.Instruction>
+  public class SDFNodeUnary<OpType> : SDFNode
   where OpType : struct, SDFNodeUnary<OpType>.IUnaryOp {
 
-    public SDFNodeUnary() : base() { }
-    public SDFNodeUnary(OpType op) : base(default(Nop), new Instruction() { Op = op }) { }
-
+    public OpType Operation;
     public sealed override NodeType NodeType => NodeType.Unary;
+
+    public SDFNodeUnary() { }
+    public SDFNodeUnary(OpType operation) {
+      Operation = operation;
+    }
 
     public struct Instruction : IInstruction {
       public OpType Op;
@@ -51,6 +54,12 @@ namespace SDF {
       }
     }
 
+    public override void VisitPreOrderInstructions<VisitorType>(ref VisitorType visitor) { }
+
+    public override void VisitPostOrderInstructions<VisitorType>(ref VisitorType visitor) {
+      visitor.Visit(new Instruction() { Op = Operation });
+    }
+
     public interface IUnaryOp {
       void Modify(ref float dist);
     }
@@ -59,13 +68,16 @@ namespace SDF {
   /// <summary>
   /// Similar to SDFNodeUnary, but requires you to specify a '4x mode' operation for optimization purposes.
   /// </summary>
-  public class SDFNodeUnary4x<OpType> : SDFNode<Nop, SDFNodeUnary4x<OpType>.Instruction>
-      where OpType : struct, SDFNodeUnary4x<OpType>.IUnaryOp {
+  public class SDFNodeUnary4x<OpType> : SDFNode
+  where OpType : struct, SDFNodeUnary4x<OpType>.IUnaryOp {
 
-    public SDFNodeUnary4x() : base() { }
-    public SDFNodeUnary4x(OpType op) : base(default(Nop), new Instruction() { Op = op }) { }
-
+    public OpType Operation;
     public sealed override NodeType NodeType => NodeType.Unary;
+
+    public SDFNodeUnary4x() { }
+    public SDFNodeUnary4x(OpType operation) {
+      Operation = operation;
+    }
 
     public struct Instruction : IInstruction {
       public OpType Op;
@@ -80,6 +92,12 @@ namespace SDF {
       public unsafe void Exec(ref float4* stack, ref float3 pos0, ref float3 pos1, ref float3 pos2, ref float3 pos3) {
         Op.Modify(ref *(stack - 1));
       }
+    }
+
+    public override void VisitPreOrderInstructions<VisitorType>(ref VisitorType visitor) { }
+
+    public override void VisitPostOrderInstructions<VisitorType>(ref VisitorType visitor) {
+      visitor.Visit(new Instruction() { Op = Operation });
     }
 
     public interface IUnaryOp {

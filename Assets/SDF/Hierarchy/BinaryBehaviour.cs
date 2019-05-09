@@ -22,7 +22,7 @@ namespace SDF.Hierarchy {
           break;
         case BinaryType.SmoothUnion:
           if (smoothUnion == null) _cachedNode = smoothUnion = new UnionSmooth();
-          smoothUnion.PostInstruction.Op.K = K;
+          smoothUnion.Operation.K = K;
           break;
       }
 

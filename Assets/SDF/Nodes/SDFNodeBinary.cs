@@ -18,14 +18,17 @@ namespace SDF {
   /// 
   /// For an example of how to implement the SDFNodeBinary class, you can take a look at Union.cs
   /// </summary>
-  public class SDFNodeBinary<OpType> : SDFNode<Nop, SDFNodeBinary<OpType>.Instruction>
+  public class SDFNodeBinary<OpType> : SDFNode
   where OpType : struct, SDFNodeBinary<OpType>.IBinaryOp {
 
-    public SDFNodeBinary() : base() { }
-    public SDFNodeBinary(OpType op) : base(default, new Instruction() { Op = op }) { }
-
+    public OpType Operation;
     public sealed override NodeType NodeType => IsCommutative ? NodeType.BinaryCommutative : NodeType.Binary;
     public virtual bool IsCommutative => false;
+
+    public SDFNodeBinary() { }
+    public SDFNodeBinary(OpType operation) {
+      Operation = operation;
+    }
 
     public struct Instruction : IInstruction {
       public OpType Op;
@@ -53,13 +56,19 @@ namespace SDF {
       }
     }
 
+    public override void VisitPreOrderInstructions<VisitorType>(ref VisitorType visitor) { }
+
     public override void VisitPostOrderInstructions<VisitorType>(ref VisitorType visitor) {
+      var instruction = new Instruction() {
+        Op = Operation
+      };
+
       //This logic is to handle commutative operations with more than 2 children.
       //If we have N children, we have N distances on the stack.
       //Each instruction reduces that amount by 1, so we want to emit N-1 instructions
       //to wind up with a final single distance on the stack.
       for (int i = 0; i < ChildrenCount - 1; i++) {
-        visitor.Visit(ref PostInstruction);
+        visitor.Visit(instruction);
       }
     }
 
@@ -71,14 +80,17 @@ namespace SDF {
   /// <summary>
   /// Similar to SDFNodeUnary, but requires you to specify a '4x mode' operation for optimization purposes.
   /// </summary>
-  public class SDFNodeBinary4x<OpType> : SDFNode<Nop, SDFNodeBinary4x<OpType>.Instruction>
+  public class SDFNodeBinary4x<OpType> : SDFNode
   where OpType : struct, SDFNodeBinary4x<OpType>.IBinaryOp {
 
-    public SDFNodeBinary4x() : base() { }
-    public SDFNodeBinary4x(OpType op) : base(default(Nop), new Instruction() { Op = op }) { }
-
+    public OpType Operation;
     public sealed override NodeType NodeType => IsCommutative ? NodeType.BinaryCommutative : NodeType.Binary;
     public virtual bool IsCommutative => false;
+
+    public SDFNodeBinary4x() { }
+    public SDFNodeBinary4x(OpType operation) {
+      Operation = operation;
+    }
 
     public struct Instruction : IInstruction {
       public OpType Op;
@@ -97,9 +109,15 @@ namespace SDF {
       }
     }
 
+    public override void VisitPreOrderInstructions<VisitorType>(ref VisitorType visitor) { }
+
     public override void VisitPostOrderInstructions<VisitorType>(ref VisitorType visitor) {
+      Instruction instruction = new Instruction() {
+        Op = Operation
+      };
+
       for (int i = 0; i < ChildrenCount - 1; i++) {
-        visitor.Visit(ref PostInstruction);
+        visitor.Visit(instruction);
       }
     }
 

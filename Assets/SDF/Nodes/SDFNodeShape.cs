@@ -17,13 +17,16 @@ namespace SDF {
   /// 
   /// For an example of how to implement the SDFNodeShape class, you can take a look at Sphere.cs
   /// </summary>
-  public abstract class SDFNodeShape<OpType> : SDFNode<Nop, SDFNodeShape<OpType>.Instruction>
+  public abstract class SDFNodeShape<OpType> : SDFNode
   where OpType : struct, SDFNodeShape<OpType>.IShapeOp {
 
-    public SDFNodeShape() : base() { }
-    public SDFNodeShape(OpType op) : base(default(Nop), new Instruction() { Op = op }) { }
-
+    public OpType Operation;
     public sealed override NodeType NodeType => NodeType.Shape;
+
+    public SDFNodeShape() { }
+    public SDFNodeShape(OpType operation) {
+      Operation = operation;
+    }
 
     public struct Instruction : IInstruction {
       public OpType Op;
@@ -46,6 +49,12 @@ namespace SDF {
       }
     }
 
+    public override void VisitPreOrderInstructions<VisitorType>(ref VisitorType visitor) { }
+
+    public override void VisitPostOrderInstructions<VisitorType>(ref VisitorType visitor) {
+      visitor.Visit(new Instruction() { Op = Operation });
+    }
+
     public interface IShapeOp {
       float Sample(float3 position);
     }
@@ -54,13 +63,16 @@ namespace SDF {
   /// <summary>
   /// Similar to SDFNodeShape, but requires you to specify a '4x mode' operation for optimization purposes.
   /// </summary>
-  public abstract class SDFNodeShape4x<OpType> : SDFNode<Nop, SDFNodeShape4x<OpType>.Instruction>
+  public abstract class SDFNodeShape4x<OpType> : SDFNode
   where OpType : struct, SDFNodeShape4x<OpType>.IShapeOp {
 
-    public SDFNodeShape4x() : base() { }
-    public SDFNodeShape4x(OpType op) : base(default(Nop), new Instruction() { Op = op }) { }
-
+    public OpType Operation;
     public sealed override NodeType NodeType => NodeType.Shape;
+
+    public SDFNodeShape4x() { }
+    public SDFNodeShape4x(OpType operation) {
+      Operation = operation;
+    }
 
     public struct Instruction : IInstruction {
       public OpType Op;
@@ -75,6 +87,12 @@ namespace SDF {
       public unsafe void Exec(ref float4* stack, ref float3 pos0, ref float3 pos1, ref float3 pos2, ref float3 pos3) {
         *(stack++) = Op.Sample(pos0, pos1, pos2, pos3);
       }
+    }
+
+    public override void VisitPreOrderInstructions<VisitorType>(ref VisitorType visitor) { }
+
+    public override void VisitPostOrderInstructions<VisitorType>(ref VisitorType visitor) {
+      visitor.Visit(new Instruction() { Op = Operation });
     }
 
     public interface IShapeOp {
