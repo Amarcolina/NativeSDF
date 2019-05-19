@@ -1,4 +1,5 @@
-﻿using Unity.Mathematics;
+﻿using System;
+using Unity.Mathematics;
 
 namespace SDF {
   using Internal;
@@ -18,16 +19,30 @@ namespace SDF {
   /// 
   /// For an example of how to implement the SDFNodeUnary class, you can take a look at Inverse.cs
   /// </summary>
-  public class SDFNodeUnary<OpType> : SDFNode
+  public abstract class SDFNodeUnary<OpType> : SDFNode
   where OpType : struct, SDFNodeUnary<OpType>.IUnaryOp {
 
-    public OpType Operation;
-    public sealed override NodeType NodeType => NodeType.Unary;
+    public override void Add(SDFNode node) {
+      if (ChildrenCount >= 1) {
+        throw new InvalidOperationException("Cannot add a second child to " + this + " because it is a Unary node which can only accept a single child.");
+      }
 
-    public SDFNodeUnary() { }
-    public SDFNodeUnary(OpType operation) {
-      Operation = operation;
+      base.Add(node);
     }
+
+    public override void VisitInstructions<VisitorType>(ref VisitorType visitor) {
+      if (ChildrenCount != 1) {
+        throw new InvalidOperationException("The SDFNode " + this + " had " + ChildrenCount + " children but expected exactly 1.");
+      }
+
+      //First emit instructions for single child
+      this[0].VisitInstructions(ref visitor);
+
+      //Then emit our own instruction for our unary op
+      visitor.Visit(new Instruction() { Op = GetOp() });
+    }
+
+    protected abstract OpType GetOp();
 
     public struct Instruction : IInstruction {
       public OpType Op;
@@ -49,55 +64,8 @@ namespace SDF {
       }
     }
 
-    public override void VisitPreOrderInstructions<VisitorType>(ref VisitorType visitor) { }
-
-    public override void VisitPostOrderInstructions<VisitorType>(ref VisitorType visitor) {
-      visitor.Visit(new Instruction() { Op = Operation });
-    }
-
     public interface IUnaryOp {
       void Modify(ref float dist);
-    }
-  }
-
-  /// <summary>
-  /// Similar to SDFNodeUnary, but requires you to specify a '4x mode' operation for optimization purposes.
-  /// </summary>
-  public class SDFNodeUnary4x<OpType> : SDFNode
-  where OpType : struct, SDFNodeUnary4x<OpType>.IUnaryOp {
-
-    public OpType Operation;
-    public sealed override NodeType NodeType => NodeType.Unary;
-
-    public SDFNodeUnary4x() { }
-    public SDFNodeUnary4x(OpType operation) {
-      Operation = operation;
-    }
-
-    public struct Instruction : IInstruction {
-      public OpType Op;
-
-      public int StackOffset => 0;
-      public int StackOffset4x => 0;
-
-      public unsafe void Exec(ref float* stack, ref float3 pos) {
-        Op.Modify(ref *(stack - 1));
-      }
-
-      public unsafe void Exec(ref float4* stack, ref float3 pos0, ref float3 pos1, ref float3 pos2, ref float3 pos3) {
-        Op.Modify(ref *(stack - 1));
-      }
-    }
-
-    public override void VisitPreOrderInstructions<VisitorType>(ref VisitorType visitor) { }
-
-    public override void VisitPostOrderInstructions<VisitorType>(ref VisitorType visitor) {
-      visitor.Visit(new Instruction() { Op = Operation });
-    }
-
-    public interface IUnaryOp {
-      void Modify(ref float dist);
-      void Modify(ref float4 dist);
     }
   }
 }

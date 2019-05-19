@@ -4,9 +4,16 @@ using static Unity.Mathematics.math;
 namespace SDF {
 
   public class Box : SDFNodeShape<Box.Op> {
-    
-    public Box() : base() { }
-    public Box(float4x4 toLocalSpace, float3 extents) : base(new Op() { ToLocalSpace = toLocalSpace, Extents = extents }) { }
+
+    public float4x4 ToLocalSpace;
+    public float3 Extents;
+
+    protected override Op GetOp() {
+      return new Op() {
+        ToLocalSpace = ToLocalSpace,
+        Extents = Extents
+      };
+    }
 
     public struct Op : IShapeOp {
       public float4x4 ToLocalSpace;

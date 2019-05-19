@@ -17,7 +17,7 @@ namespace SDF.Hierarchy {
           break;
         case UnaryType.Offset:
           if (offset == null) _cachedNode = offset = new Offset();
-          offset.Operation.Offset = Offset;
+          offset.Value = Offset;
           break;
       }
 
