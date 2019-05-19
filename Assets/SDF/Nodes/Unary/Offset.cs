@@ -1,6 +1,8 @@
-﻿
+﻿using System;
+
 namespace SDF {
 
+  [Serializable]
   public class Offset : SDFNodeUnary<Offset.Op> {
 
     public float Value;

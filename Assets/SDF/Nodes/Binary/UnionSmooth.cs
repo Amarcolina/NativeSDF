@@ -1,7 +1,9 @@
-﻿using static Unity.Mathematics.math;
+﻿using System;
+using static Unity.Mathematics.math;
 
 namespace SDF {
 
+  [Serializable]
   public class UnionSmooth : SDFNodeBinary<UnionSmooth.Op> {
 
     public float K;

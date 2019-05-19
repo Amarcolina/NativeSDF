@@ -85,7 +85,7 @@ namespace SDF.Internal {
           ex.Exec<SDFNodeDomainBase.PopPositionsInstruction>();
           break;
         case 8:
-          ex.Exec<Repeat.Instruction>();
+          ex.Exec<ModSimple.Instruction>();
           break;
           // Add new instructions here!
       }

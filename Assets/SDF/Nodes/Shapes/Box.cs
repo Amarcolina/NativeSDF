@@ -1,8 +1,10 @@
-﻿using Unity.Mathematics;
+﻿using System;
+using Unity.Mathematics;
 using static Unity.Mathematics.math;
 
 namespace SDF {
 
+  [Serializable]
   public class Box : SDFNodeShape<Box.Op> {
 
     public float4x4 ToLocalSpace;

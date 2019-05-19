@@ -8,16 +8,20 @@ namespace SDF.Hierarchy {
 
     public DomainType Type;
     public float CellSize = 1;
+    public bool ModX, ModY, ModZ;
 
     private SDFNode _cachedNode;
 
     protected override SDFNode GenerateNode() {
-      var repeat = _cachedNode as Repeat;
+      var modSimple = _cachedNode as ModSimple;
 
       switch (Type) {
-        case DomainType.Repeat:
-          if (repeat == null) _cachedNode = repeat = new Repeat();
-          repeat.CellSize = CellSize;
+        case DomainType.ModSimple:
+          if (modSimple == null) _cachedNode = modSimple = new ModSimple();
+          modSimple.CellSize = CellSize;
+          modSimple.ModX = ModX;
+          modSimple.ModY = ModY;
+          modSimple.ModZ = ModZ;
           break;
       }
 
@@ -25,7 +29,7 @@ namespace SDF.Hierarchy {
     }
 
     public enum DomainType {
-      Repeat
+      ModSimple
     }
   }
 }

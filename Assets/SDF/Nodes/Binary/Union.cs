@@ -1,7 +1,9 @@
-﻿using static Unity.Mathematics.math;
+﻿using System;
+using static Unity.Mathematics.math;
 
 namespace SDF {
 
+  [Serializable]
   public class Union : SDFNodeBinary<Union.Op> {
 
     public override bool IsCommutative => true;

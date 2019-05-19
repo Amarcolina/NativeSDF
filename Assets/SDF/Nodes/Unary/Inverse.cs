@@ -1,6 +1,8 @@
-﻿
+﻿using System;
+
 namespace SDF {
 
+  [Serializable]
   public class Inverse : SDFNodeUnary<Inverse.Op> {
 
     protected override Op GetOp() {
