@@ -58,7 +58,7 @@ public class TextureSlice : MonoBehaviour {
     sdf.Dispose();
   }
 
-  //[BurstCompile]
+  [BurstCompile]
   public struct BuildTextureJob : IJobParallelFor {
     public NativeSDF SDF;
     public NativeArray<Color32> Texture;
