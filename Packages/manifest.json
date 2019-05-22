@@ -5,6 +5,7 @@
     "com.unity.burst": "1.0.0",
     "com.unity.collab-proxy": "1.2.16",
     "com.unity.collections": "0.0.9-preview.17",
+    "com.unity.jobs": "0.0.7-preview.12",
     "com.unity.mathematics": "1.0.1",
     "com.unity.package-manager-ui": "2.1.2",
     "com.unity.purchasing": "2.0.6",

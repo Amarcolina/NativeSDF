@@ -66,12 +66,12 @@ namespace SDF.Hierarchy {
         case NodeType.Sphere:
           if (sphere == null) _cachedNode = sphere = new Sphere();
           sphere.Center = transform.position;
-          sphere.Radius = transform.lossyScale.x;
+          sphere.Radius = transform.lossyScale.x * 0.5f;
           break;
         case NodeType.Box:
           if (box == null) _cachedNode = box = new Box();
           box.ToLocalSpace = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one).inverse;
-          box.Extents = transform.lossyScale;
+          box.Extents = transform.lossyScale * 0.5f;
           break;
 
         //Binaries
@@ -143,6 +143,20 @@ namespace SDF.Hierarchy {
 
       public CategoryAttribute(string Category) {
         this.Category = Category;
+      }
+    }
+
+    private void OnDrawGizmosSelected() {
+      Gizmos.color = Color.white;
+      switch (Type) {
+        case NodeType.Sphere:
+          Gizmos.matrix = transform.localToWorldMatrix;
+          Gizmos.DrawWireSphere(Vector3.zero, 0.5f);
+          break;
+        case NodeType.Box:
+          Gizmos.matrix = transform.localToWorldMatrix;
+          Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
+          break;
       }
     }
   }

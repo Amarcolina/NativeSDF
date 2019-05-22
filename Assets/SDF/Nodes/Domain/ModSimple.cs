@@ -26,7 +26,9 @@ namespace SDF {
       public bool3 Mask;
 
       public void Modify(ref float3 pos) {
-        float3 modPos = math.frac(pos / CellSize) * CellSize;
+        float3 cellPos = pos / CellSize ;
+        cellPos = cellPos - math.floor(cellPos);
+        float3 modPos = cellPos * CellSize;
         pos = math.select(pos, modPos, Mask);
       }
     }
