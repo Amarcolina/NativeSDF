@@ -1,12 +1,21 @@
-﻿using Unity.Mathematics;
+﻿using System;
+using Unity.Mathematics;
 using static Unity.Mathematics.math;
 
 namespace SDF {
 
+  [Serializable]
   public class Sphere : SDFNodeShape<Sphere.Op> {
 
-    public Sphere() : base() { }
-    public Sphere(float3 center, float radius) : base(new Op() { Center = center, Radius = radius }) { }
+    public float3 Center;
+    public float Radius;
+
+    protected override Op GetOp() {
+      return new Op() {
+        Center = Center,
+        Radius = Radius
+      };
+    }
 
     public struct Op : IShapeOp {
       public float3 Center;

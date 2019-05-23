@@ -1,10 +1,20 @@
-﻿
+﻿using System;
+
 namespace SDF {
 
+  [Serializable]
   public class Offset : SDFNodeUnary<Offset.Op> {
 
-    public Offset() : base() { }
-    public Offset(float offset) : base(new Op() { Offset = offset }) { }
+    public float Value;
+
+    public Offset() { }
+    public Offset(float value) {
+      Value = value;
+    }
+
+    protected override Op GetOp() {
+      return new Op() { Offset = Value };
+    }
 
     public struct Op : IUnaryOp {
       public float Offset;

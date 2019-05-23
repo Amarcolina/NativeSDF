@@ -28,10 +28,6 @@ namespace SDF {
   public abstract class SDFNode : IEnumerable<SDFNode> {
 
     #region API
-    /// <summary>
-    /// The type of this node.  Override in a child class to specify.
-    /// </summary>
-    public abstract NodeType NodeType { get; }
 
     /// <summary>
     /// The number of child nodes this node has.
@@ -50,34 +46,11 @@ namespace SDF {
     }
 
     /// <summary>
-    /// Adds a new child to this node.  Depending on this node type, this operation might fail.  For example,
-    /// it is always invalid to try to add a node as a child of a Shape node, since Shape nodes cannot have children.
-    /// 
-    /// These node-types can fail under certain conditions:
-    ///   Shape             - Always fails, Shape nodes cannot have children
-    ///   Unary             - Fails if the node already has a child, Unary nodes can only have one child.
-    ///   Binary            - Fails if the node already has two children, Binary nodes can only have two children.
+    /// Adds a new child to this node. 
     /// </summary>
-    public void Add(SDFNode node) {
+    public virtual void Add(SDFNode node) {
       if (node == null) {
         throw new ArgumentNullException("node");
-      }
-
-      switch (NodeType) {
-        case NodeType.Shape:
-          throw new InvalidOperationException("The SDFNode " + this + " is a Shape node and so cannot have any children.");
-        case NodeType.Unary:
-          if (_children.Count >= 1) {
-            throw new InvalidOperationException("The SDFNode " + this + " is a Unary node and so can have only a single child.");
-          }
-          break;
-        case NodeType.Binary:
-          if (_children.Count >= 2) {
-            throw new InvalidOperationException("The SDFNode " + this + " is a Binary node and so can only have two children.\n" +
-                                                "If you are extending SDFNodeBinary, and are writing a commutative node that can support " +
-                                                "more than two children, override IsCommutative to return true.");
-          }
-          break;
       }
 
       _children.Add(node);
@@ -92,16 +65,14 @@ namespace SDF {
     /// with the Unity Burst compiler.
     /// </summary>
     public NativeSDF Compile(Allocator allocator = Allocator.Persistent) {
-      validate();
-
       var countVisitor = new InstructionCountVisitor();
-      VisitInstructionsDepthFirst(ref countVisitor);
+      VisitInstructions(ref countVisitor);
 
       var sizeVisitor = new BufferSizeVisitor();
-      VisitInstructionsDepthFirst(ref sizeVisitor);
+      VisitInstructions(ref sizeVisitor);
 
       var stackVisitor = new StackSizeVisitor();
-      VisitInstructionsDepthFirst(ref stackVisitor);
+      VisitInstructions(ref stackVisitor);
 
       IntPtr instructions;
       unsafe {
@@ -113,35 +84,22 @@ namespace SDF {
       var bufferWriter = new InstructionWriteVisitor();
       bufferWriter.ptr = instructions;
       bufferWriter.byteOffset = 0;
-      VisitInstructionsDepthFirst(ref bufferWriter);
+      VisitInstructions(ref bufferWriter);
 
       return new NativeSDF(instructions, countVisitor.InstructionCount, stackVisitor.MaxStack, allocator);
     }
 
     /// <summary>
-    /// Visits the tree in depth first order using the provided visitor.
+    /// Visits the tree using the provided visitor, emitting instructions along the way.
     /// </summary>
-    public void VisitInstructionsDepthFirst<VisitorType>(ref VisitorType visitor) where VisitorType : IInstructionVisitor {
-      VisitPreOrderInstructions(ref visitor);
+    public abstract void VisitInstructions<VisitorType>(ref VisitorType visitor)
+      where VisitorType : IInstructionVisitor;
 
-      for (int i = 0; i < _children.Count; i++) {
-        _children[i].VisitInstructionsDepthFirst(ref visitor);
+    public SDFNode this[int index] {
+      get {
+        return _children[index];
       }
-
-      VisitPostOrderInstructions(ref visitor);
     }
-
-    /// <summary>
-    /// When called, you should call the Visit method on the visitor with every instruction you want to
-    /// emit in the pre-order hierarchy pass.
-    /// </summary>
-    public abstract void VisitPreOrderInstructions<VisitorType>(ref VisitorType visitor) where VisitorType : IInstructionVisitor;
-
-    /// <summary>
-    /// When called, you should call the Visit method on the visitor with every instruction you want to
-    /// emit in the post-order hierarchy pass.
-    /// </summary>
-    public abstract void VisitPostOrderInstructions<VisitorType>(ref VisitorType visitor) where VisitorType : IInstructionVisitor;
 
     public List<SDFNode>.Enumerator GetEnumerator() {
       return _children.GetEnumerator();
@@ -166,35 +124,6 @@ namespace SDF {
 
     IEnumerator IEnumerable.GetEnumerator() {
       return GetEnumerator();
-    }
-
-    private void validate() {
-      switch (NodeType) {
-        case NodeType.Shape:
-          if (_children.Count != 0) {
-            throw new InvalidOperationException("The SDFNode " + this + " had " + _children.Count + " children but expected to have 0.");
-          }
-          break;
-        case NodeType.Unary:
-          if (_children.Count != 1) {
-            throw new InvalidOperationException("The SDFNode " + this + " had " + _children.Count + " children but expected to have 1.");
-          }
-          break;
-        case NodeType.Binary:
-          if (_children.Count != 2) {
-            throw new InvalidOperationException("The SDFNode " + this + " had " + _children.Count + " children but expected to have 2.");
-          }
-          break;
-        case NodeType.BinaryCommutative:
-          if (_children.Count < 2) {
-            throw new InvalidOperationException("The SDFNode " + this + " had " + _children.Count + " children but expected to have at least 2.");
-          }
-          break;
-      }
-
-      for (int i = 0; i < _children.Count; i++) {
-        _children[i].validate();
-      }
     }
 
     private struct InstructionCountVisitor : IInstructionVisitor {

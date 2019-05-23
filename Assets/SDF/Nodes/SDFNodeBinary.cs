@@ -1,4 +1,5 @@
-﻿using Unity.Mathematics;
+﻿using System;
+using Unity.Mathematics;
 
 namespace SDF {
   using Internal;
@@ -18,17 +19,43 @@ namespace SDF {
   /// 
   /// For an example of how to implement the SDFNodeBinary class, you can take a look at Union.cs
   /// </summary>
-  public class SDFNodeBinary<OpType> : SDFNode
+  public abstract class SDFNodeBinary<OpType> : SDFNode
   where OpType : struct, SDFNodeBinary<OpType>.IBinaryOp {
 
-    public OpType Operation;
-    public sealed override NodeType NodeType => IsCommutative ? NodeType.BinaryCommutative : NodeType.Binary;
     public virtual bool IsCommutative => false;
 
-    public SDFNodeBinary() { }
-    public SDFNodeBinary(OpType operation) {
-      Operation = operation;
+    public override void Add(SDFNode node) {
+      if (ChildrenCount >= 2 && !IsCommutative) {
+        throw new InvalidOperationException("Cannot add a third child to " + GetType().Name + " because it is not set as commutative.");
+      }
+
+      base.Add(node);
     }
+
+    public override void VisitInstructions<VisitorType>(ref VisitorType visitor) {
+      if (ChildrenCount < 2) {
+        throw new InvalidOperationException("The SDFNode " + this + " had " + ChildrenCount + " but expected at least 2.");
+      }
+
+      //First execute all children
+      foreach (var child in this) {
+        child.VisitInstructions(ref visitor);
+      }
+
+      var instruction = new Instruction() {
+        Op = GetOp()
+      };
+
+      //This logic is to handle commutative operations with more than 2 children.
+      //If we have N children, we have N distances on the stack.
+      //Each instruction reduces that amount by 1, so we want to emit N-1 instructions
+      //to wind up with a final single distance on the stack.
+      for (int i = 0; i < ChildrenCount - 1; i++) {
+        visitor.Visit(instruction);
+      }
+    }
+
+    protected abstract OpType GetOp();
 
     public struct Instruction : IInstruction {
       public OpType Op;
@@ -56,74 +83,8 @@ namespace SDF {
       }
     }
 
-    public override void VisitPreOrderInstructions<VisitorType>(ref VisitorType visitor) { }
-
-    public override void VisitPostOrderInstructions<VisitorType>(ref VisitorType visitor) {
-      var instruction = new Instruction() {
-        Op = Operation
-      };
-
-      //This logic is to handle commutative operations with more than 2 children.
-      //If we have N children, we have N distances on the stack.
-      //Each instruction reduces that amount by 1, so we want to emit N-1 instructions
-      //to wind up with a final single distance on the stack.
-      for (int i = 0; i < ChildrenCount - 1; i++) {
-        visitor.Visit(instruction);
-      }
-    }
-
     public interface IBinaryOp {
       float Combine(float left, float right);
-    }
-  }
-
-  /// <summary>
-  /// Similar to SDFNodeUnary, but requires you to specify a '4x mode' operation for optimization purposes.
-  /// </summary>
-  public class SDFNodeBinary4x<OpType> : SDFNode
-  where OpType : struct, SDFNodeBinary4x<OpType>.IBinaryOp {
-
-    public OpType Operation;
-    public sealed override NodeType NodeType => IsCommutative ? NodeType.BinaryCommutative : NodeType.Binary;
-    public virtual bool IsCommutative => false;
-
-    public SDFNodeBinary4x() { }
-    public SDFNodeBinary4x(OpType operation) {
-      Operation = operation;
-    }
-
-    public struct Instruction : IInstruction {
-      public OpType Op;
-
-      public int StackOffset => sizeof(float) * -1;
-      public int StackOffset4x => sizeof(float) * -4;
-
-      public unsafe void Exec(ref float* stack, ref float3 pos) {
-        stack--;
-        *(stack - 1) = Op.Combine(*(stack - 1), *(stack - 0));
-      }
-
-      public unsafe void Exec(ref float4* stack, ref float3 pos0, ref float3 pos1, ref float3 pos2, ref float3 pos3) {
-        stack--;
-        *(stack - 1) = Op.Combine(*(stack - 1), *(stack - 0));
-      }
-    }
-
-    public override void VisitPreOrderInstructions<VisitorType>(ref VisitorType visitor) { }
-
-    public override void VisitPostOrderInstructions<VisitorType>(ref VisitorType visitor) {
-      Instruction instruction = new Instruction() {
-        Op = Operation
-      };
-
-      for (int i = 0; i < ChildrenCount - 1; i++) {
-        visitor.Visit(instruction);
-      }
-    }
-
-    public interface IBinaryOp {
-      float Combine(float left, float right);
-      float4 Combine(float4 left, float4 right);
     }
   }
 }

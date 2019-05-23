@@ -1,13 +1,22 @@
-﻿using static Unity.Mathematics.math;
+﻿using System;
+using static Unity.Mathematics.math;
 
 namespace SDF {
 
+  [Serializable]
   public class UnionSmooth : SDFNodeBinary<UnionSmooth.Op> {
 
-    public UnionSmooth() : this(0.5f) { }
-    public UnionSmooth(float k) : base(new Op() { K = k }) { }
-
+    public float K;
     public override bool IsCommutative => true;
+
+    public UnionSmooth() : this(0.5f) { }
+    public UnionSmooth(float k) {
+      K = k;
+    }
+
+    protected override Op GetOp() {
+      return new Op() { K = K };
+    }
 
     public struct Op : IBinaryOp {
       public float K;

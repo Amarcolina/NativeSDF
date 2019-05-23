@@ -81,6 +81,12 @@ namespace SDF.Internal {
         case 6:
           ex.Exec<Offset.Instruction>();
           break;
+        case 7:
+          ex.Exec<SDFNodeDomainBase.PopPositionsInstruction>();
+          break;
+        case 8:
+          ex.Exec<ModSimple.Instruction>();
+          break;
           // Add new instructions here!
       }
     }
