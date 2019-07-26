@@ -3,9 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using static Unity.Mathematics.math;
 
 namespace SDF {
   using Internal;
+  using Unity.Mathematics;
 
   /// <summary>
   /// Represents a single node in a tree of signed distance field operations.  Through
@@ -112,6 +114,16 @@ namespace SDF {
     public interface IInstructionVisitor {
       void Visit<InstructionType>(InstructionType instruction) where InstructionType : struct, IInstruction;
     }
+
+    protected static float mod(float x, float y) {
+      return x - y * floor(x / y);
+    }
+
+    protected static float3 mul(float4x4 mat, float3 pos) {
+      float4 result = math.mul(mat, new float4(pos.x, pos.y, pos.z, 1.0f));
+      return new float3(result.x, result.y, result.z);
+    }
+
     #endregion
 
     #region IMPLEMENTATION

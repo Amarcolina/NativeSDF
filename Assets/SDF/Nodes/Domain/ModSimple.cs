@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Mathematics;
+using static Unity.Mathematics.math;
 
 namespace SDF {
 
@@ -31,6 +32,13 @@ namespace SDF {
         float3 modPos = cellPos * CellSize;
         pos = math.select(pos, modPos, Mask);
       }
+    }
+
+    public static float Mod1(ref float pos, float size) {
+      float halfsize = size * 0.5f;
+      float c = floor((pos + halfsize) / size);
+      pos = mod(pos + halfsize, size) - halfsize;
+      return c;
     }
   }
 }

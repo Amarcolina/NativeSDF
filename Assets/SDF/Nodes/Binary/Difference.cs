@@ -1,10 +1,9 @@
 ﻿using System;
-using static Unity.Mathematics.math;
 
 namespace SDF {
 
   [Serializable]
-  public class Intersection : SDFNodeBinary<Intersection.Op> {
+  public class Difference : SDFNodeBinary<Difference.Op> {
 
     public override bool IsCommutative => true;
 
@@ -14,12 +13,12 @@ namespace SDF {
 
     public struct Op : IBinaryOp {
       public float Combine(float left, float right) {
-        return Intersection.Combine(left, right);
+        return Difference.Combine(left, right);
       }
     }
 
     public static float Combine(float left, float right) {
-      return max(left, right);
+      return Intersection.Combine(left, -right);
     }
   }
 }

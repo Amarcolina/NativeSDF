@@ -22,16 +22,15 @@ namespace SDF {
       public float3 Extents;
 
       public float Sample(float3 position) {
-        float4 l = mul(ToLocalSpace, new float4(position, 1.0f));
-        float3 localPos;
-        localPos.x = l.x;
-        localPos.y = l.y;
-        localPos.z = l.z;
-
-        float3 d = abs(localPos) - Extents;
-        return length(max(d, 0.0f))
-               + min(max(d.x, max(d.y, d.z)), 0.0f);
+        return Box.Sample(position, ToLocalSpace, Extents);
       }
+    }
+
+    public static float Sample(float3 position, float4x4 toLocalSpace, float3 extents) {
+      float3 localPos = mul(toLocalSpace, position);
+      float3 d = abs(localPos) - extents;
+      return length(max(d, 0.0f))
+             + min(max(d.x, max(d.y, d.z)), 0.0f);
     }
   }
 }

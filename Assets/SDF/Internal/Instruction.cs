@@ -63,29 +63,101 @@ namespace SDF.Internal {
         case 0:
           ex.Exec<Inverse.Instruction>();
           break;
+
         case 1:
           ex.Exec<Union.Instruction>();
           break;
         case 2:
-          ex.Exec<UnionSmooth.Instruction>();
+          ex.Exec<UnionChamfer.Instruction>();
           break;
         case 3:
-          ex.Exec<Intersection.Instruction>();
+          ex.Exec<UnionColumns.Instruction>();
           break;
         case 4:
-          ex.Exec<Sphere.Instruction>();
+          ex.Exec<UnionRound.Instruction>();
           break;
         case 5:
-          ex.Exec<Box.Instruction>();
+          ex.Exec<UnionStairs.Instruction>();
           break;
+
         case 6:
-          ex.Exec<Offset.Instruction>();
+          ex.Exec<Intersection.Instruction>();
           break;
         case 7:
-          ex.Exec<SDFNodeDomainBase.PopPositionsInstruction>();
+          ex.Exec<IntersectionChamfer.Instruction>();
           break;
         case 8:
+          ex.Exec<IntersectionColumns.Instruction>();
+          break;
+        case 9:
+          ex.Exec<IntersectionRound.Instruction>();
+          break;
+        case 10:
+          ex.Exec<IntersectionStairs.Instruction>();
+          break;
+
+        case 11:
+          ex.Exec<Difference.Instruction>();
+          break;
+        case 12:
+          ex.Exec<DifferenceChamfer.Instruction>();
+          break;
+        case 13:
+          ex.Exec<DifferenceColumns.Instruction>();
+          break;
+        case 14:
+          ex.Exec<DifferenceRound.Instruction>();
+          break;
+        case 15:
+          ex.Exec<DifferenceStairs.Instruction>();
+          break;
+
+        case 16:
+          ex.Exec<Engrave.Instruction>();
+          break;
+        case 17:
+          ex.Exec<Groove.Instruction>();
+          break;
+        case 18:
+          ex.Exec<Pipe.Instruction>();
+          break;
+        case 19:
+          ex.Exec<Tongue.Instruction>();
+          break;
+
+        case 20:
+          ex.Exec<Box.Instruction>();
+          break;
+        case 21:
+          ex.Exec<Capsule.Instruction>();
+          break;
+        case 22:
+          ex.Exec<Cone.Instruction>();
+          break;
+        case 23:
+          ex.Exec<Cylinder.Instruction>();
+          break;
+        case 24:
+          ex.Exec<Plane.Instruction>();
+          break;
+        case 25:
+          ex.Exec<Sphere.Instruction>();
+          break;
+        case 26:
+          ex.Exec<Torus.Instruction>();
+          break;
+
+        case 27:
+          ex.Exec<Offset.Instruction>();
+          break;
+        case 28:
+          ex.Exec<SDFNodeDomainBase.PopPositionsInstruction>();
+          break;
+        case 29:
           ex.Exec<ModSimple.Instruction>();
+          break;
+        case 30:
+          ex.Exec<Rotate45.Instruction>();
           break;
           // Add new instructions here!
       }

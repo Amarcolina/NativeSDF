@@ -14,8 +14,12 @@ namespace SDF {
 
     public struct Op : IBinaryOp {
       public float Combine(float left, float right) {
-        return min(left, right);
+        return Union.Combine(left, right);
       }
+    }
+
+    public static float Combine(float left, float right) {
+      return min(left, right);
     }
   }
 }
