@@ -101,7 +101,7 @@ public class ExampleMesher : MonoBehaviour {
             Offsets = offsets,
             CountIndex = pairIndex,
             Vertices = verts,
-            VertexMap = map.ToConcurrent()
+            VertexMap = map.AsParallelWriter()
           }.Schedule().Complete();
 
           pairIndex++;
@@ -120,7 +120,7 @@ public class ExampleMesher : MonoBehaviour {
             InVertices = pairArrays[pairIndex],
             Counts = counts,
             CountIndex = pairIndex,
-            TriQueue = triQueue.ToConcurrent(),
+            TriQueue = triQueue.AsParallelWriter(),
             VertexMap = map,
 
             SDF = sdf,
@@ -337,7 +337,7 @@ public class ExampleMesher : MonoBehaviour {
     [NativeDisableContainerSafetyRestriction]
     public NativeArray<Vector3> Vertices;
     [WriteOnly]
-    public NativeHashMap<int3, int>.Concurrent VertexMap;
+    public NativeHashMap<int3, int>.ParallelWriter VertexMap;
 
     public void Execute() {
       int count = Counts[CountIndex];
@@ -360,7 +360,7 @@ public class ExampleMesher : MonoBehaviour {
     public NativeArray<int> Counts;
     public int CountIndex;
 
-    public NativeQueue<int3>.Concurrent TriQueue;
+    public NativeQueue<int3>.ParallelWriter TriQueue;
 
     public NativeSDF SDF;
     public float3 GridCorner;
