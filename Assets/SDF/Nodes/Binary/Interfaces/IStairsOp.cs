@@ -1,9 +1,9 @@
 ﻿
 namespace SDF {
 
-  public interface IStairsOp {
+    public interface IStairsOp {
 
-    float Radius { get; set; }
-    int N { get; set; }
-  }
+        float Radius { get; set; }
+        int N { get; set; }
+    }
 }

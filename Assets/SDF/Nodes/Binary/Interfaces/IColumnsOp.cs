@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace SDF {
 
-  public interface IColumnsOp  {
-    
-    float Radius { get; set; }
-    int N { get; set; }
-  }
+    public interface IColumnsOp {
+
+        float Radius { get; set; }
+        int N { get; set; }
+    }
 }

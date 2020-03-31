@@ -2,17 +2,17 @@
 
 namespace SDF {
 
-  [Serializable]
-  public class Inverse : SDFNodeUnary<Inverse.Op> {
+    [Serializable]
+    public class Inverse : SDFNodeUnary<Inverse.Op> {
 
-    protected override Op GetOp() {
-      return default;
-    }
+        protected override Op GetOp() {
+            return default;
+        }
 
-    public struct Op : IUnaryOp {
-      public void Modify(ref float dist) {
-        dist = -dist;
-      }
+        public struct Op : IUnaryOp {
+            public void Modify(ref float dist) {
+                dist = -dist;
+            }
+        }
     }
-  }
 }
